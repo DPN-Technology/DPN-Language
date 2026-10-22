@@ -8,7 +8,7 @@ fn temp_project() -> std::path::PathBuf {
 #[test]
 fn checks_editor_buffer_not_saved_version() {
     let dir=temp_project();let path=dir.join("main.dpn");
-    fs::write(&path,"fn main() { print("on disk"); }").unwrap();
+    fs::write(&path,r#"fn main() { print("on disk"); }"#).unwrap();
     let p=load_project_with_source(&path,"fn main() { missing; }").unwrap();
     let error=check(&p).unwrap_err();assert!(error.contains("undefined variable"),"{error}");
     fs::remove_dir_all(dir).unwrap();
