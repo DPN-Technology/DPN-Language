@@ -11,9 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-      - name: Extract verified source package
+      - name: Safely extract DPN source
         run: |
           set -euo pipefail
           test -f dpn-source.tar.gz
@@ -24,22 +22,22 @@ jobs:
           test -f Cargo.toml
           test -f src/lib.rs
           test -f src/main.rs
+          # Workflow files are installed separately using the GitHub connector
+          # because the Actions token lacks workflow-management scope.
+          rm -f .github/workflows/rust.yml .github/workflows/editor.yml
           rm dpn-source.tar.gz
-          rm .github/workflows/initial-import.yml
-      - name: Commit extracted source to repository
+      - name: Commit source files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "feat: import DPN Language v0.8.0 source and editor tooling"
+          git commit -m "feat: import DPN Language v0.8.0 interpreter, tests and editor"
           git push
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      - name: Rust compile and test
-        run: |
-          cargo test --all-targets
-          cargo clippy --all-targets -- -D warnings
+      - run: cargo test --all-targets
+      - run: cargo clippy --all-targets -- -D warnings
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
