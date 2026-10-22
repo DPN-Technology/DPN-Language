@@ -1,127 +1,166 @@
-# DPN Language v0.5.0
+<div align="center">
 
-**Experimental language runtime: this package has not passed a Rust compilation test in this environment.**
+# ◈ DPN LANGUAGE
 
-## v0.4 additions
+### DEVELOP · PIONEER · NAVIGATE
 
-Array literals (`[1, 2]`), indexed reads (`values[0]`), nested arrays, `array` type annotations and pure `array.len`, `array.push`, `array.contains` builtins. `array.push` returns a new array; it does not mutate the original. Array indexes must be nonnegative integers and are bounds-checked. The new `examples/collections.dpn` demonstrates them.
+**A Rust-powered, permission-restricted scripting language for software development and IT automation.**
 
-> Full lexical scoping, imports/module resolution, true static checking and language server are **not implemented** yet. `use` remains a parsed declaration, not a resolved import.
+[![Rust CI](https://github.com/DPN-Technology/DPN-Language/actions/workflows/rust.yml/badge.svg)](https://github.com/DPN-Technology/DPN-Language/actions/workflows/rust.yml)
+[![Editor checks](https://github.com/DPN-Technology/DPN-Language/actions/workflows/editor.yml/badge.svg)](https://github.com/DPN-Technology/DPN-Language/actions/workflows/editor.yml)
+![Language](https://img.shields.io/badge/source-.dpn-9b59d0?style=flat-square)
+![Rust](https://img.shields.io/badge/engine-Rust-242938?style=flat-square)
+![Stage](https://img.shields.io/badge/stage-experimental-e6a23c?style=flat-square)
 
-# DPN Language
+**Version 0.8.0 · Experimental · DPN Technology**
 
-**Develop • Pioneer • Navigate** | Hybrid general-purpose and IT automation scripting with `.dpn` source files.
+</div>
 
-## v0.2.0 source preview
+> [!IMPORTANT]
+> DPN is a functional **interpreter**, not a native-code compiler or a secure sandbox. Test and inspect scripts before running them. Read-only file access must be explicitly granted; native process execution and system changes are not exposed by the language.
 
-An original interpreter in **Rust (standard library only)** with tokenization, parsing, function calls, control flow, explicit mutation rules, a security-oriented runtime, and a command-line interface. This is an experimental language, **not production-ready** and not a Rust-to-native compiler.
+## Mission control
 
-### Quick start
+| Start here | What you'll find |
+|:--|:--|
+| [Quick start](#quick-start) | Build, test and execute your first `.dpn` program |
+| [Language features](#language-features) | Supported syntax and runtime behavior |
+| [Architecture](#system-architecture) | Parser, checker, module loader and runtime flow |
+| [Editor integration](docs/EDITOR_TOOLS.md) | VS Code setup, diagnostics and navigation |
+| [Security model](docs/SECURITY.md) | Permissions, resource limits and trust boundaries |
+| [Language guide](docs/LANGUAGE.md) | Syntax and expression reference |
+| [Standard library](docs/STANDARD_LIBRARY.md) | Supported built-in APIs |
+| [Module system](docs/MODULES.md) | Safe multi-file imports and dependency checks |
 
-Install the current stable Rust toolchain from https://rustup.rs and execute:
+## Quick start
+
+**Requirements:** Rust stable toolchain (install from [rustup.rs](https://rustup.rs)), Git, and optionally Node.js 22+ for editor checks.
 
 ```powershell
-cargo test
-cargo run -- run examples/advanced.dpn
-cargo run -- check examples/advanced.dpn
+# In the repository directory
+cargo test --all-targets
 cargo build --release
-.\target\release\dpn.exe run examples\advanced.dpn
+
+# Windows
+.\target\release\dpn.exe run examples\hello.dpn
+.\target\release\dpn.exe check examples\modules.dpn
+
+# Scaffold a new project
+.\target\release\dpn.exe new my-first-dpn-app
 ```
 
-Run the explicitly permissioned, read-only audit example:
+Linux/macOS replace `dpn.exe` with `dpn` and use `/` path separators. The `dpn` executable is produced **after** building; this repository does not ship a prebuilt Windows binary.
 
-```powershell
-.\target\release\dpn.exe run examples\file_audit.dpn --allow-read .
-```
-
-Use `dpn new my-project` to scaffold a directory and `main.dpn`. `dpn check` currently performs syntax checking, not static type checking.
-
-## Example
+### Your first `.dpn` program
 
 ```dpn
-fn square(value: number) -> number {
-    return value * value;
-}
+module DPN.Main
+
+use lib.health;
+
 fn main() {
-    print("DPN " + string.upper("language"));
-    print(square(7));
-    print(system.os());
+    const app: string = "DPN Command Center";
+    let devices: array = ["router", "server", "workstation"];
+
+    print(app);
+    print("Devices discovered: " + array.len(devices));
+    print(health_label(system.cpu_count()));
 }
 ```
 
-## Supported language features
+See `examples/modules.dpn` and `examples/lib/health.dpn` for a complete working multi-file example. The snippet illustrates the language syntax; DPN does not yet perform device discovery automatically.
 
-- `module` / `use` syntactic declarations (module resolution is **not** implemented)
-- `fn`, named parameters, optional type annotations (parsed, not enforced), `return`
-- `let`, `const`, assignment, `if` / `else`, `while`, function calls
-- `number`, `string`, `bool`, `nil`; `+`, `-`, `*`, `/`, `%`, comparisons and boolean expressions
-- line and block comments; string escapes `\n`, `\t`, `\"`, `\\`
-- builtins: `print`, `type.of`, `math.*`, `string.*`, `system.*`, `file.read`
+## System architecture
 
-## Trust boundaries
+```mermaid
+flowchart TD
+  A[.dpn entry file] --> B[Safe module loader]
+  B --> C[Lexer and parser]
+  C --> D[AST program]
+  D --> E[Static checker]
+  E -->|dpn check| F[Diagnostics]
+  D -->|dpn run| G[Interpreter runtime]
+  G --> H[Standard library]
+  H --> I[Permission checks]
+  I --> J[Read-only host inspection]
+  K[VS Code editor] -->|source buffer via stdin| B
+  F --> K
+```
 
-- No shell, process execution, socket access, file writes, or environment-variable access is exposed to `.dpn` programs.
-- `file.read` is disabled by default. `--allow-read <dir>` enables only existing regular files within that canonicalized directory. Paths outside are rejected; symlink targets are checked after canonicalization.
-- `file.read` enforces a 1 MiB file size limit (not a comprehensive memory quota).
-- Execution steps and call depth are limited; not a hardened sandbox against adversarial scripts.
-- **Never run untrusted scripts on sensitive endpoints.** All future mutating IT APIs must require explicit capabilities and audit logs.
+**Core components:** `src/lib.rs` (tokenizer, parser, AST, interpreter and built-ins), `src/checker.rs` (pre-execution semantic checking), `src/modules.rs` (restricted recursive imports), `src/main.rs` (CLI).
 
-## Code layout
+## Language features
 
-- `src/lib.rs` — lexer, recursive-descent parser, AST, runtime and builtins
-- `src/main.rs` — CLI
-- `tests/` — behavior / permissions regression tests
-- `examples/` — executable demos
-- `editors/vscode-dpn-language/` — VS Code extension source
-- `docs/` — language and security design
-- `.github/workflows/` — cross-platform Rust CI
+| Area | v0.8 capabilities | Notes |
+|:--|:--|:--|
+| Variables | `let`, `const`, assignments | Constants cannot be reassigned |
+| Types | `number`, `string`, `bool`, `array`, `nil`, `any` | Runtime checks and conservative static checks |
+| Functions | Parameters, argument checking, return types | No closures or generics yet |
+| Flow | `if` / `else`, `while`, `return` | Lexical block scoping |
+| Collections | Array literals, indexes, nested arrays, helper functions | No map/object literals yet |
+| Modules | `use lib.health;` and recursive imports | Imports merge into shared function namespace |
+| Safety | Step and call-depth limits, optional read root | Not a complete hostile-code sandbox |
+| IT APIs | OS, architecture, logical CPU count, limited file reads | No mutation or shell access |
+| Editor | `.dpn` highlighting, completion, diagnostics and navigation | Source spans are incomplete |
 
-## Development status
+## CLI reference
 
-The source is implemented, but the Rust toolchain was unavailable during authoring in this environment. The ZIP's test outcomes have **not** been independently verified. Run `cargo fmt`, `cargo clippy`, and `cargo test` locally or in CI before distributing binaries.
+```text
+dpn run   <file.dpn> [--allow-read <dir>]
+dpn check <file.dpn> [--stdin]
+dpn new   <project-name>
+dpn version
+dpn help
+```
+
+**`--stdin`** is designed for editors: pipe unsaved DPN source into the checker while leaving the saved file untouched. The entry file must exist on disk so the module loader can determine the project root.
+
+### Permission model
+
+```powershell
+# No filesystem access is granted by default
+dpn run examples\file_audit.dpn
+
+# Grant read access to a specific directory only
+dpn run examples\file_audit.dpn --allow-read .
+```
+
+File reads are limited in size and confined to the permitted canonical directory. Follow [SECURITY.md](docs/SECURITY.md) for limitations and threat-model assumptions.
+
+## VS Code developer experience
+
+The extension is in [`editors/vscode-dpn-language`](editors/vscode-dpn-language). It provides semantic checker diagnostics in Problems, native `.dpn` syntax support, local symbol navigation, built-in autocomplete, and hover help.
+
+Use the **DPN: Run Current File** and **DPN: Check Current File** commands. Set `dpn.executable` to a compiled `dpn` binary and read [EDITOR_TOOLS.md](docs/EDITOR_TOOLS.md) for installation and current limitations.
+
+## Build and verification gates
+
+| Workflow | Coverage |
+|:--|:--|
+| **DPN Rust CI** | Clippy, tests and release builds across Ubuntu, Windows and macOS |
+| **DPN Editor Checks** | Node syntax validation and VS Code extension manifest checks |
+| **GitHub security scanning** | Subject to the repository's configured GitHub security features |
+
+The badges above reflect actual GitHub Actions results; a passing badge does not mean the language is production-ready.
+
+## Project map
+
+```text
+src/                    Rust interpreter, static checker, module loader and CLI
+examples/               Runnable .dpn examples and local modules
+tests/                  Rust integration tests and editor checks
+docs/                   Language, types, security and architecture guidance
+editors/vscode-dpn-language/
+                        VS Code extension source
+.github/workflows/       Cross-platform build, test and editor checks
+```
 
 ## Roadmap
 
-- v0.3: enforced type checking, lexical scopes, file/module loader, source spans, structured diagnostics
-- v0.4: first-class arrays/maps, JSON, and Windows read-only diagnostics
-- v0.5: language-server protocol and debugger foundations
-- v0.7+: hardened capability model, packaging and signed releases
+- **v0.8 (current):** Complete initial GitHub repository import; CLI buffer checking; VS Code diagnostics, completion, navigation and CI.
+- **v0.9 (planned):** Accurate source spans and structured diagnostics; namespaced imports; better symbol analysis; first standalone language-server transport.
+- **v1.0 (future):** Stabilized language spec, expanded standard library, hardened capability policy and documented compatibility contract after extensive real-world testing.
 
-© DPN Technology. License: MIT (see LICENSE).
+## Ownership and licensing
 
-## v0.3.0 — Typed runtime contracts
-
-DPN v0.3 adds optional **runtime-checked** type annotations for `let`, `const`,
-function parameters, and function returns. Types: `number`, `string`, `bool`,
-`nil`, and `any`. This is not a static type checker: `dpn check` verifies parsing
-only. See [`docs/TYPES.md`](docs/TYPES.md) and
-[`examples/typed_automation.dpn`](examples/typed_automation.dpn).
-
-```powershell
-cargo test
-cargo run -- run examples/typed_automation.dpn
-```
-
-The runtime continues to deny filesystem access unless `--allow-read` is passed.
-This is a development milestone; do not execute untrusted code expecting a
-complete security sandbox (resource and side-channel isolation is not complete).
-
-## v0.5 scope semantics
-
-Branch and loop bodies now use lexical child scopes, allowing shadowing without leaking local variables. See `examples/scopes.dpn`, `docs/SCOPES.md` and `tests/scopes.rs`. Run `cargo test` before using in production.
-
-## v0.7 — Static analysis
-
-The `dpn check <file.dpn>` command now runs conservative, **non-executing** semantic checks after parsing: undefined variables, block scoping, const reassignment, duplicate declarations, known variable/argument/return type mismatches, unknown calls, and incorrect argument counts. See [Static analysis](docs/STATIC_ANALYSIS.md).
-
-This is **not** a complete compiler or full static type system. Multi-file `use` imports and source-span semantic diagnostics are not implemented yet.
-
-## v0.7: local modules
-
-`use lib.health;` loads `lib/health.dpn` relative to the entry directory. See [module documentation](docs/MODULES.md) and [sample](examples/modules.dpn). Imports detect cycles, duplicate function names, top-level code in libraries and attempted escapes from the project root. Namespace-qualified imports are not yet available.
-
-## v0.8 — Editor intelligence
-
-The VS Code extension now includes Problems diagnostics from `dpn check`, live unsaved-source checking without writing the file, autocompletion, outline/navigation and built-in hover documentation. The new `dpn check <file.dpn> --stdin` mode supplies source through standard input while preserving module loading from the entry file's directory. See [editor integration](docs/EDITOR_TOOLS.md).
-
-**Verification:** JavaScript syntax checks run with Node; Rust compilation and tests must run in GitHub Actions until a Rust toolchain is available locally. Semantic diagnostics are best-effort source-position hints, not precise AST spans. The project remains experimental.
+Copyright © DPN Technology. This repository currently includes the [MIT license](LICENSE). Anyone proposing a different licensing approach should review that file before publishing or redistributing code.
