@@ -1,0 +1,46 @@
+{
+  "name": "DPN Language",
+  "scopeName": "source.dpn",
+  "patterns": [
+    {
+      "name": "comment.block.dpn",
+      "begin": "/\\*",
+      "end": "\\*/"
+    },
+    {
+      "name": "comment.line.double-slash.dpn",
+      "match": "//.*$"
+    },
+    {
+      "name": "string.quoted.double.dpn",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.dpn",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "keyword.control.dpn",
+      "match": "\\b(fn|return|if|else|while|let|const|module|use)\\b"
+    },
+    {
+      "name": "constant.language.dpn",
+      "match": "\\b(true|false|nil)\\b"
+    },
+    {
+      "name": "storage.type.dpn",
+      "match": "\\b(string|number|bool)\\b"
+    },
+    {
+      "name": "constant.numeric.dpn",
+      "match": "\\b[0-9]+(\\.[0-9]+)?\\b"
+    },
+    {
+      "name": "entity.name.function.dpn",
+      "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*(?=\\()"
+    }
+  ]
+}

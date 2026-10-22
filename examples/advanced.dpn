@@ -1,0 +1,21 @@
+module DPN.Advanced;
+use dpn.system;
+
+fn factorial(n: number) -> number {
+    let result = 1;
+    let current = 2;
+    while current <= n {
+        result = result * current;
+        current = current + 1;
+    }
+    return result;
+}
+
+fn main() {
+    print("DPN " + string.upper("language"));
+    print("OS: " + system.os());
+    print("CPU threads: " + system.cpu_count());
+    print("5! = " + factorial(5));
+    print("17 % 5 = " + (17 % 5));
+    print("Type: " + type.of(true));
+}

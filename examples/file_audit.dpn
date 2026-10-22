@@ -1,0 +1,6 @@
+// Run: dpn run examples/file_audit.dpn --allow-read .
+fn main() {
+    let source = file.read("Cargo.toml");
+    print("Package contains DPN: " + string.contains(source, "dpn-language"));
+    print("Bytes represented as characters: " + string.len(source));
+}

@@ -1,0 +1,13 @@
+module DPN.Scopes
+fn main() {
+    let devices = ["router", "server"];
+    let healthy: number = 0;
+    let i: number = 0;
+    while i < array.len(devices) {
+        let device: string = devices[i];
+        print("Checking " + device);
+        healthy = healthy + 1;
+        i = i + 1;
+    }
+    print("Devices checked: " + healthy);
+}

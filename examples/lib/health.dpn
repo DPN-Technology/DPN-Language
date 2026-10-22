@@ -1,0 +1,5 @@
+module DPN.Health
+fn health_label(cpu: number) -> string {
+    if cpu > 1 { return "multi-core"; }
+    return "single-core";
+}

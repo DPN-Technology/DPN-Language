@@ -1,0 +1,14 @@
+module DPN.Main
+use dpn.system
+
+fn greet(name: string) -> string {
+    return "Welcome to DPN Language, " + name + "!";
+}
+
+fn main() {
+    const organization = "DPN Technology";
+    print(greet("Diesel"));
+    print("Organization: " + organization);
+    print("OS: " + system.os());
+    print("Architecture: " + system.arch());
+}

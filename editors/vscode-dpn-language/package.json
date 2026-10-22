@@ -1,0 +1,86 @@
+{
+  "name": "dpn-language",
+  "displayName": "DPN Language",
+  "description": "DPN Language diagnostics, completion, definitions, snippets and run/check commands",
+  "version": "0.8.0",
+  "publisher": "dpn-technology",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "dpn",
+        "aliases": [
+          "DPN Language",
+          "dpn"
+        ],
+        "extensions": [
+          ".dpn"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "dpn",
+        "scopeName": "source.dpn",
+        "path": "./syntaxes/dpn.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "dpn",
+        "path": "./snippets/dpn.json"
+      }
+    ],
+    "configuration": {
+      "title": "DPN Language",
+      "properties": {
+        "dpn.executable": {
+          "type": "string",
+          "default": "dpn",
+          "description": "Path to the DPN CLI executable."
+        },
+        "dpn.validateOnChange": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate unsaved DPN source buffers with the CLI."
+        },
+        "dpn.diagnosticDelay": {
+          "type": "number",
+          "default": 400,
+          "minimum": 100,
+          "description": "Milliseconds before validating after edits."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "dpn.runCurrent",
+        "title": "DPN: Run Current File"
+      },
+      {
+        "command": "dpn.checkCurrent",
+        "title": "DPN: Check Current File"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "dpn.runCurrent",
+          "when": "resourceExtname == .dpn",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:dpn"
+  ]
+}

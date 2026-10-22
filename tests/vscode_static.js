@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('node:assert/strict');
+const cp=require('node:child_process');
+const path=require('node:path');
+const ext=path.join(__dirname,'../editors/vscode-dpn-language/extension.js');
+const r=cp.spawnSync(process.execPath,['--check',ext],{encoding:'utf8'});
+assert.equal(r.status,0,r.stderr);
+const pkg=require('../editors/vscode-dpn-language/package.json');
+assert.equal(pkg.version,'0.8.0');
+assert.ok(pkg.contributes.configuration.properties['dpn.validateOnChange']);
+console.log('DPN VS Code extension static checks passed');

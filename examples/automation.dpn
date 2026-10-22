@@ -1,0 +1,11 @@
+// Read-only system inventory example. No network calls or system mutations.
+fn main() {
+    print("DPN AUTOMATION // SYSTEM INVENTORY");
+    print("Platform: " + system.os());
+    print("Architecture: " + system.arch());
+    let i = 1;
+    while i <= 3 {
+        print("Inventory step " + i);
+        i = i + 1;
+    }
+}

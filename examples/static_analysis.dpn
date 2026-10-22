@@ -1,0 +1,16 @@
+module DPN.Analysis
+
+fn classify(cores: number) -> string {
+    if cores >= 8 {
+        return "high capacity";
+    } else {
+        return "standard capacity";
+    }
+}
+
+fn main() {
+    const application: string = "DPN Language v0.6";
+    let cpus: number = system.cpu_count();
+    print(application);
+    print(classify(cpus));
+}

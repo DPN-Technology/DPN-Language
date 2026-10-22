@@ -1,0 +1,15 @@
+[package]
+name = "dpn-language"
+version = "0.8.0"
+edition = "2021"
+license = "MIT"
+description = "DPN Language hybrid scripting interpreter and command-line tools"
+repository = "https://github.com/DPN-Technology/DPN-Language"
+
+[[bin]]
+name = "dpn"
+path = "src/main.rs"
+
+[lib]
+name = "dpn_language"
+path = "src/lib.rs"

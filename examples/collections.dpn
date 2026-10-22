@@ -1,0 +1,10 @@
+module DPN.Collections
+
+fn main() {
+    let devices: array = ["workstation", "server", "router"];
+    print("DPN inventory count: " + array.len(devices));
+    print("First device: " + devices[0]);
+    const expanded: array = array.push(devices, "switch");
+    print("Expanded inventory count: " + array.len(expanded));
+    print(array.contains(expanded, "router"));
+}

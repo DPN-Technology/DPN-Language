@@ -1,0 +1,18 @@
+// DPN Language v0.3 — typed automation, read-only by default
+module DPN.Automation
+use dpn.system
+
+fn status_label(os: string, cpu: number) -> string {
+    if cpu > 1 {
+        return "DPN " + string.upper(os) + " multi-core ready";
+    }
+    return "DPN " + string.upper(os) + " single-core ready";
+}
+
+fn main() {
+    const name: string = "DPN Command Center";
+    let cores: number = system.cpu_count();
+    print(name);
+    print(status_label(system.os(), cores));
+    print("Architecture: " + system.arch());
+}

@@ -1,0 +1,5 @@
+module DPN.App
+use lib.health;
+fn main() {
+    print("DPN host: " + health_label(system.cpu_count()));
+}
