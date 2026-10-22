@@ -1,5 +1,5 @@
 //! Local, explicit module loading with cycle detection and root confinement.
-use std::{collections::{HashMap, HashSet}, path::{Path, PathBuf}};
+use std::{collections::HashSet, path::{Path, PathBuf}};
 use crate::{parse, tokenize, Kind, Program};
 
 /// Load one `.dpn` program and its `use name.submodule;` dependencies.
